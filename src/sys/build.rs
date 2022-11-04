@@ -1,5 +1,20 @@
-
 fn main() {
+    #[cfg(target_os = "linux")]
+    {
+        use std::path::PathBuf;
+        use std::process::Command;
+        let path: PathBuf = String::from_utf8(
+            Command::new("g++")
+                .args(["--print-file-name=libstdc++.a"])
+                .output()
+                .expect("failed to find libstdc++")
+                .stdout,
+        )
+        .unwrap()
+        .into();
+        println!("cargo:rustc-link-search=native={}", path.parent().unwrap().to_string_lossy());
+        println!("cargo:rustc-link-lib=static=stdc++");
+    }
     let files = &[
         "libwebm/mkvmuxer/mkvmuxer.cc",
         "libwebm/mkvmuxer/mkvwriter.cc",
